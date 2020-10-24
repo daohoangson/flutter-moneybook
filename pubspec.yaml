@@ -11,9 +11,11 @@ dependencies:
     path: packages/data
 
   cloud_firestore: "^0.14.1+3"
+  firebase_auth:
   firebase_core:
   flutter:
     sdk: flutter
+  flutter_riverpod:
 
 dev_dependencies:
   flutter_test:
