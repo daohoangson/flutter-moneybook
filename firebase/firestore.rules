@@ -1,0 +1,39 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /user-books/{userId} {
+      allow create, read, update: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /books/{bookId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function getUserBookRole(bookId) {
+       	let userBook = getAfter(/databases/$(database)/documents/user-books/$(request.auth.uid));
+        return userBook.data[bookId];
+      }
+
+      function isOneOfRoles(rsc, array) {
+        return isSignedIn() && (rsc.data.roles[request.auth.uid] in array);
+      }
+
+      allow create: if isOneOfRoles(request.resource, ['owner'])
+        && getUserBookRole(bookId) == 'owner';
+
+      allow read: if isOneOfRoles(resource, ['owner', 'viewer', 'editor']);
+
+      // both OWNER and EDITOR can update the book
+      // but only OWNER can change the roles
+      allow update: if request.resource.data.roles == resource.data.roles
+        && isOneOfRoles(resource, ['owner', 'editor'])
+        || isOneOfRoles(resource, ['owner']);
+
+      match /lines/{lineId} {
+        allow create: if isOneOfRoles(get(/databases/$(database)/documents/books/$(bookId)), ['owner', 'editor']);
+        allow read: if isOneOfRoles(get(/databases/$(database)/documents/books/$(bookId)), ['owner', 'viewer', 'editor']);
+      }
+    }
+  }
+}
