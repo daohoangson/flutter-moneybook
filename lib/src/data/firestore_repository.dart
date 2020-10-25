@@ -31,7 +31,10 @@ class _FirestoreRepository extends Repository {
   Future<BookModel> createBook(BookModel book) async {
     final bookDoc = _firestore.collection(_kCollectionBooks).doc();
     final role = _kRoleOwner;
-    book = book.copyWith(roles: {user.uid: role});
+    book = book.copyWith(
+      id: bookDoc.id,
+      roles: {user.uid: role},
+    );
 
     final userBookDoc =
         _firestore.collection(_kCollectionUserBooks).doc(user.uid);
@@ -42,14 +45,15 @@ class _FirestoreRepository extends Repository {
       transaction.set(userBookDoc, userBookData, SetOptions(merge: true));
     });
 
-    return book.copyWith(id: bookDoc.id);
+    return book;
   }
 
   @override
-  Future<LineModel> createBookLine(BookModel book, LineModel line) async {
-    final bookDoc = _firestore.collection(_kCollectionBooks).doc(book.id);
+  Future<LineModel> createBookLine(String bookId, LineModel line) async {
+    final bookDoc = _firestore.collection(_kCollectionBooks).doc(bookId);
     final lineDoc = bookDoc.collection(_kCollectionLines).doc();
     line = line.copyWith(
+      id: lineDoc.id,
       uid: user.uid,
       when: DateTime.now(),
     );
@@ -67,80 +71,84 @@ class _FirestoreRepository extends Repository {
       transaction.update(bookDoc, {_kBookFieldBalance: balanceAfter});
     });
 
-    return line.copyWith(id: lineDoc.id);
+    return line;
+  }
+
+  Stream<BookModel> getBook(String bookId) {
+    print('getBook($bookId)...');
+    return _firestore
+        .collection(_kCollectionBooks)
+        .doc(bookId)
+        .snapshots()
+        .map((doc) => doc.bookModel);
   }
 
   @override
-  Stream<List<BookModel>> getBooks() {
-    StreamSubscription userBooksSubscription;
-    StreamSubscription booksSubscription;
+  Stream<List<LineModel>> getLines(String bookId,
+      {int limit, LineModel since}) {
+    print('getLines($bookId, limit: $limit, since: $since)...');
+    var query = _firestore
+        .collection(_kCollectionBooks)
+        .doc(bookId)
+        .collection(_kCollectionLines)
+        .orderBy(_kLineFieldWhen, descending: true);
 
-    StreamController<List<BookModel>> controller;
+    if (limit != null) {
+      query = query.limit(limit);
+    }
 
-    controller = StreamController(
-      onCancel: () {
-        booksSubscription?.cancel();
-        userBooksSubscription?.cancel();
-        controller.close();
-      },
-    );
+    if (since != null) {
+      final doc = _Mapper._docs[since];
+      if (doc == null) {
+        print('Unrecognized since value $since');
+        // returning nothing seems to be safer...
+        return Stream.fromIterable([]);
+      }
+      query = query.startAfterDocument(doc);
+    }
 
-    if (user == null) return controller.stream;
+    return query.snapshots().map(
+          (qs) => qs.docs.map((doc) => doc.lineModel).toList(growable: false),
+        );
+  }
 
-    userBooksSubscription = _firestore
+  @override
+  Stream<List<String>> getUserBooks() {
+    print('getUserBooks()...');
+    return _firestore
         .collection(_kCollectionUserBooks)
         .doc(user.uid)
         .snapshots()
-        .listen((userBooks) {
+        .map((userBooks) {
       if (!userBooks.exists) {
-        controller.sink.add([]);
-        return;
+        return [];
       }
 
-      final booksStream = _firestore
-          .collection(_kCollectionBooks)
-          .where(
-            FieldPath.documentId,
-            whereIn: userBooks.data().keys.toList(growable: false),
-          )
-          .snapshots();
-
-      booksSubscription?.cancel();
-      booksSubscription = booksStream.listen((snapshot) {
-        final books = snapshot.docs
-            .map((book) => BookModel.fromJson({
-                  ...book.data(),
-                  _kFieldId: book.id,
-                }))
-            .toList(growable: false);
-        books.sort(_compareBooksByName);
-        controller.sink.add(books);
-      });
+      return userBooks.data().keys.toList(growable: false);
     });
-
-    return controller.stream;
   }
-
-  @override
-  Stream<List<LineModel>> getLines(String bookId) => _firestore
-      .collection(_kCollectionBooks)
-      .doc(bookId)
-      .collection(_kCollectionLines)
-      .orderBy(_kLineFieldWhen, descending: true)
-      .snapshots()
-      .map(
-        (snapshot) => snapshot.docs.map((line) {
-          final data = line.data();
-          final when =
-              (data[_kLineFieldWhen] as Timestamp)?.toDate()?.toIso8601String();
-          return LineModel.fromJson({
-            ...data,
-            _kFieldId: line.id,
-            _kLineFieldWhen: when,
-          });
-        }).toList(growable: false),
-      );
 }
 
-int _compareBooksByName(BookModel a, BookModel b) =>
-    (a?.name ?? '').compareTo(b?.name ?? '');
+extension _Mapper on DocumentSnapshot {
+  static final _docs = Expando<DocumentSnapshot>();
+
+  BookModel get bookModel {
+    final model = BookModel.fromJson({...data(), _kFieldId: id});
+    _docs[model] = this;
+    return model;
+  }
+
+  LineModel get lineModel {
+    final data = this.data();
+    final model = LineModel.fromJson({
+      ...data,
+      _kFieldId: id,
+      _kLineFieldWhen:
+          (data[_kLineFieldWhen] as Timestamp)?.toDate()?.toIso8601String(),
+    });
+
+    _docs[model] = this;
+
+    return model;
+  }
+}

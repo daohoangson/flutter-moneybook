@@ -16,6 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod:
+  tuple:
 
 dev_dependencies:
   flutter_test:

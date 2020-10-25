@@ -1,29 +1,29 @@
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:moneybook/src/data/firestore_repository.dart';
+import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/l10n/strings.dart';
 import 'package:moneybook/src/widget/keyboard_aware_bottom_sheet.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NewLineFab extends StatelessWidget {
-  final BookModel book;
+  final String bookId;
 
-  const NewLineFab(this.book, {Key key}) : super(key: key);
+  const NewLineFab(this.bookId, {Key key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) => FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () => showModalBottomSheet(
-          builder: (_) => _NewLineBottomSheet(book),
+          builder: (_) => _NewLineBottomSheet(bookId),
           context: context,
         ),
       );
 }
 
 class _NewLineBottomSheet extends StatefulWidget {
-  final BookModel book;
+  final String bookId;
 
-  const _NewLineBottomSheet(this.book, {Key key}) : super(key: key);
+  const _NewLineBottomSheet(this.bookId, {Key key}) : super(key: key);
 
   @override
   State<_NewLineBottomSheet> createState() => _NewLineBottomSheetState();
@@ -59,7 +59,7 @@ class _NewLineBottomSheetState extends State<_NewLineBottomSheet> {
               onPressed: () async {
                 final book =
                     await context.read(repositoryProvider).createBookLine(
-                          widget.book,
+                          widget.bookId,
                           LineModel(amount: int.tryParse(controller.text)),
                         );
                 Navigator.of(context).pop(book);

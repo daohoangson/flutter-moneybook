@@ -4,9 +4,11 @@ import '../model/line_model.dart';
 abstract class Repository {
   Future<BookModel> createBook(BookModel book);
 
-  Future<LineModel> createBookLine(BookModel book, LineModel line);
+  Future<LineModel> createBookLine(String bookId, LineModel line);
 
-  Stream<List<BookModel>> getBooks();
+  Stream<BookModel> getBook(String bookId);
 
-  Stream<List<LineModel>> getLines(String bookId);
+  Stream<List<LineModel>> getLines(String bookId, {int limit, LineModel since});
+
+  Stream<List<String>> getUserBooks();
 }

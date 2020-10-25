@@ -1,9 +1,9 @@
 import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:moneybook/src/data/firestore_repository.dart';
+import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/l10n/strings.dart';
 import 'package:moneybook/src/widget/keyboard_aware_bottom_sheet.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class NewBookFab extends StatelessWidget {
   @override

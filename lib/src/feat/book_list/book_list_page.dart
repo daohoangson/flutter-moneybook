@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:data/data.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:moneybook/src/data/firestore_repository.dart';
+import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/l10n/strings.dart';
 
 import 'book_widget.dart';
 import 'new_book_fab.dart';
-
-final _booksProvider = StreamProvider.autoDispose(
-    (ref) => ref.watch(repositoryProvider).getBooks());
 
 class BookListPage extends ConsumerWidget {
   @override
@@ -17,13 +12,13 @@ class BookListPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(Strings.of(context).bookList),
       ),
-      body: StreamBuilder<List<BookModel>>(
+      body: StreamBuilder<List<String>>(
         builder: (_, snapshot) {
           if (snapshot.hasData) {
-            final books = snapshot.data;
+            final bookIds = snapshot.data;
             return ListView.builder(
-              itemBuilder: (_, i) => BookWidget(books[i]),
-              itemCount: books.length,
+              itemBuilder: (_, i) => BookWidget(bookIds[i]),
+              itemCount: bookIds.length,
             );
           }
 
@@ -33,7 +28,7 @@ class BookListPage extends ConsumerWidget {
 
           return const Center(child: CircularProgressIndicator());
         },
-        stream: reader(_booksProvider.stream),
+        stream: reader(userBookProvider.stream),
       ),
       floatingActionButton: NewBookFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
