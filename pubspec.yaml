@@ -16,7 +16,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_riverpod:
-  tuple:
+  pull_to_refresh: ^1.6.2
 
 dev_dependencies:
   flutter_test:

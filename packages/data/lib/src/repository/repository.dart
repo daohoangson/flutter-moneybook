@@ -8,7 +8,9 @@ abstract class Repository {
 
   Stream<BookModel> getBook(String bookId);
 
-  Stream<List<LineModel>> getLines(String bookId, {int limit, LineModel since});
+  Stream<List<LineModel>> getLines(String bookId);
+
+  Future<List<LineModel>> getLinesOnce(String bookId, {LineModel since});
 
   Stream<List<String>> getUserBooks();
 }

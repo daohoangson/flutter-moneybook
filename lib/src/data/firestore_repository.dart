@@ -15,6 +15,7 @@ const _kBookFieldBalance = 'balance';
 
 const _kCollectionLines = 'lines';
 const _kLineFieldWhen = 'when';
+const _kLineLimit = 20;
 
 const _kCollectionUserBooks = 'user-books';
 
@@ -84,32 +85,41 @@ class _FirestoreRepository extends Repository {
   }
 
   @override
-  Stream<List<LineModel>> getLines(String bookId,
-      {int limit, LineModel since}) {
-    print('getLines($bookId, limit: $limit, since: $since)...');
+  Stream<List<LineModel>> getLines(String bookId) {
+    print('getLines($bookId)...');
+    return _firestore
+        .collection(_kCollectionBooks)
+        .doc(bookId)
+        .collection(_kCollectionLines)
+        .limit(_kLineLimit)
+        .orderBy(_kLineFieldWhen, descending: true)
+        .snapshots()
+        .map((qs) =>
+            qs.docs.map((doc) => doc.lineModel).toList(growable: false));
+  }
+
+  @override
+  Future<List<LineModel>> getLinesOnce(String bookId, {LineModel since}) async {
+    print('getLinesOnce($bookId, since: $since)...');
     var query = _firestore
         .collection(_kCollectionBooks)
         .doc(bookId)
         .collection(_kCollectionLines)
+        .limit(_kLineLimit)
         .orderBy(_kLineFieldWhen, descending: true);
-
-    if (limit != null) {
-      query = query.limit(limit);
-    }
 
     if (since != null) {
       final doc = _Mapper._docs[since];
       if (doc == null) {
         print('Unrecognized since value $since');
         // returning nothing seems to be safer...
-        return Stream.fromIterable([]);
+        return [];
       }
       query = query.startAfterDocument(doc);
     }
 
-    return query.snapshots().map(
-          (qs) => qs.docs.map((doc) => doc.lineModel).toList(growable: false),
-        );
+    final snapshot = await query.get();
+    return snapshot.docs.map((doc) => doc.lineModel).toList(growable: false);
   }
 
   @override
