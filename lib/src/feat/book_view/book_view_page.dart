@@ -4,10 +4,11 @@ import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/feat/book_list/book_list_page.dart';
 import 'package:moneybook/src/feat/book_view/line_list_widget.dart';
 import 'package:moneybook/src/widget/book_name_widget.dart';
+import 'package:moneybook/src/widget/unfocus_widget.dart';
 
 import 'book_id_picker.dart';
 import 'book_stats_widget.dart';
-import 'new_line_fab.dart';
+import 'new_line_widget.dart';
 
 class BookViewPage extends StatefulWidget {
   final String bookId;
@@ -33,35 +34,36 @@ class _BookViewPageState extends State<BookViewPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: GestureDetector(
-          child: BookNameWidget(widget.bookId),
-          onTap: () => _showBookPicker(context),
-        ),
-        actions: [
-          if (widget.isHomePage)
-            IconButton(
-              icon: Icon(Icons.settings),
-              onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (_) => BookListPage())),
-            )
-        ],
-      ),
-      body: Column(
-        children: [
-          BookStatsWidget(widget.bookId),
-          Expanded(
-            child: LineListWidget(
-              widget.bookId,
-              upperLimit: anchor,
-            ),
+    return UnfocusWidget(
+      child: Scaffold(
+        appBar: AppBar(
+          title: GestureDetector(
+            child: BookNameWidget(widget.bookId),
+            onTap: () => _showBookPicker(context),
           ),
-        ],
-        key: anchor,
+          actions: [
+            if (widget.isHomePage)
+              IconButton(
+                icon: Icon(Icons.settings),
+                onPressed: () => Navigator.of(context)
+                    .push(MaterialPageRoute(builder: (_) => BookListPage())),
+              )
+          ],
+        ),
+        body: Column(
+          children: [
+            BookStatsWidget(widget.bookId),
+            NewLineWidget(widget.bookId),
+            Expanded(
+              child: LineListWidget(
+                widget.bookId,
+                upperLimit: anchor,
+              ),
+            ),
+          ],
+          key: anchor,
+        ),
       ),
-      floatingActionButton: NewLineFab(widget.bookId),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 

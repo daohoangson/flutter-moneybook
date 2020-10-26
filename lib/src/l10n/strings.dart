@@ -13,6 +13,8 @@ class Strings {
   final bookNameLabel = 'Book name';
   final bookNameHint = 'Personal book';
 
+  final lineAddExpense = 'Add expense';
+  final lineAddIncome = 'Add income';
   final lineAmountLabel = 'Amount';
   final lineAmountHint = '0';
 
