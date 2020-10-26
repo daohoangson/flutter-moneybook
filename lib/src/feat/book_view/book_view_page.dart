@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:moneybook/src/data/persistence.dart';
+import 'package:moneybook/src/data/riverpod.dart';
+import 'package:moneybook/src/feat/book_list/book_list_page.dart';
 import 'package:moneybook/src/feat/book_view/line_list_widget.dart';
 import 'package:moneybook/src/widget/book_name_widget.dart';
 
+import 'book_id_picker.dart';
 import 'book_stats_widget.dart';
 import 'new_line_fab.dart';
 
 class BookViewPage extends StatefulWidget {
   final String bookId;
+  final bool isHomePage;
 
-  BookViewPage(this.bookId, {Key key}) : super(key: key);
+  BookViewPage(this.bookId, {this.isHomePage = false, Key key})
+      : super(key: key);
 
   @override
   _BookViewPageState createState() => _BookViewPageState();
@@ -18,10 +24,29 @@ class _BookViewPageState extends State<BookViewPage> {
   final anchor = GlobalKey();
 
   @override
+  void initState() {
+    super.initState();
+    context
+        .read(persistenceProvider.future)
+        .then((p) => p.currentBookId = widget.bookId);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: BookNameWidget(widget.bookId),
+        title: GestureDetector(
+          child: BookNameWidget(widget.bookId),
+          onTap: () => _showBookPicker(context),
+        ),
+        actions: [
+          if (widget.isHomePage)
+            IconButton(
+              icon: Icon(Icons.settings),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (_) => BookListPage())),
+            )
+        ],
       ),
       body: Column(
         children: [
@@ -38,5 +63,24 @@ class _BookViewPageState extends State<BookViewPage> {
       floatingActionButton: NewLineFab(widget.bookId),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
+  }
+
+  void _showBookPicker(BuildContext context) async {
+    final replacementBookId = await showModalBottomSheet(
+      context: context,
+      builder: (_) => BookIdPicker(
+        selectedBookId: widget.bookId,
+      ),
+    );
+
+    if (replacementBookId == null) return;
+
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (_) => BookViewPage(
+                  replacementBookId,
+                  isHomePage: widget.isHomePage,
+                )));
   }
 }

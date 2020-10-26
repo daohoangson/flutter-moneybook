@@ -17,6 +17,7 @@ dependencies:
     sdk: flutter
   flutter_riverpod:
   pull_to_refresh: ^1.6.2
+  shared_preferences:
 
 dev_dependencies:
   flutter_test:

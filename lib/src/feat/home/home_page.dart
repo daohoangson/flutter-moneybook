@@ -1,43 +1,53 @@
+import 'package:data/data.dart';
 import 'package:flutter/material.dart';
 import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/feat/auth/firebase_auth.dart';
 import 'package:moneybook/src/feat/book_list/book_list_page.dart';
+import 'package:moneybook/src/feat/book_view/book_view_page.dart';
 import 'package:moneybook/src/l10n/strings.dart';
 
 class HomePage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, ScopedReader reader) {
-    return Scaffold(
+    final placeholder = Scaffold(
       appBar: AppBar(
         title: Text(Strings.of(context).home),
       ),
-      body: ListView(
-        children: [
-          ListTile(
-            title: Text('Hello #${reader(authProvider).data?.value?.uid}'),
-          ),
-          _ListTile(
-            Strings.of(context).bookList,
-            (context) => BookListPage(),
-          )
-        ],
+      body: const Center(child: CircularProgressIndicator()),
+    );
+
+    return _WatchUid(
+      child: FutureBuilder<String>(
+        builder: (_, snapshot) {
+          if (!snapshot.hasData) return placeholder;
+
+          final currentBookId = snapshot.data;
+          if (currentBookId.isEmpty) return BookListPage();
+
+          return BookViewPage(
+            currentBookId,
+            isHomePage: true,
+          );
+        },
+        future: reader(currentBookIdProvider.future),
       ),
+      placeholder: placeholder,
     );
   }
 }
 
-class _ListTile extends StatelessWidget {
-  final String title;
-  final WidgetBuilder builder;
+class _WatchUid extends ConsumerWidget {
+  final Widget child;
+  final Widget placeholder;
 
-  const _ListTile(this.title, this.builder, {Key key}) : super(key: key);
+  _WatchUid({this.child, Key key, this.placeholder}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      title: Text(title),
-      onTap: () =>
-          Navigator.of(context).push(MaterialPageRoute(builder: builder)),
+  Widget build(BuildContext context, ScopedReader reader) {
+    return FutureBuilder<UserModel>(
+      builder: (_, snapshot) =>
+          snapshot.data?.uid != null ? child : placeholder,
+      future: reader(authProvider.last),
     );
   }
 }

@@ -10,7 +10,7 @@ class BookWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader reader) {
-    return StreamBuilder<BookModel>(
+    return FutureBuilder<BookModel>(
       builder: (_, snapshot) {
         final book = snapshot.data;
         return ListTile(
@@ -20,7 +20,7 @@ class BookWidget extends ConsumerWidget {
               .push(MaterialPageRoute(builder: (_) => BookViewPage(bookId))),
         );
       },
-      stream: reader(bookProvider(bookId).stream),
+      future: reader(bookProvider(bookId).last),
     );
   }
 }

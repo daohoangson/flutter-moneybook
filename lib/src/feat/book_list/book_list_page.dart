@@ -12,7 +12,7 @@ class BookListPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(Strings.of(context).bookList),
       ),
-      body: StreamBuilder<List<String>>(
+      body: FutureBuilder<List<String>>(
         builder: (_, snapshot) {
           if (snapshot.hasData) {
             final bookIds = snapshot.data;
@@ -28,7 +28,7 @@ class BookListPage extends ConsumerWidget {
 
           return const Center(child: CircularProgressIndicator());
         },
-        stream: reader(userBookProvider.stream),
+        future: reader(userBookProvider.last),
       ),
       floatingActionButton: NewBookFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

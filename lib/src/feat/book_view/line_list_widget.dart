@@ -14,7 +14,7 @@ class LineListWidget extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, ScopedReader reader) {
-    return StreamBuilder<List<LineModel>>(
+    return FutureBuilder<List<LineModel>>(
       builder: (_, snapshot) {
         if (snapshot.hasData) {
           final lines = snapshot.data;
@@ -42,7 +42,7 @@ class LineListWidget extends ConsumerWidget {
 
         return const Center(child: CircularProgressIndicator());
       },
-      stream: reader(linesProvider(bookId).stream),
+      future: reader(linesProvider(bookId).last),
     );
   }
 }
