@@ -8,8 +8,9 @@ import 'package:moneybook/src/widget/line_widget.dart';
 
 class LineListWidget extends ConsumerWidget {
   final String bookId;
+  final GlobalKey upperLimit;
 
-  LineListWidget(this.bookId, {Key key}) : super(key: key);
+  LineListWidget(this.bookId, {Key key, this.upperLimit}) : super(key: key);
 
   @override
   Widget build(BuildContext context, ScopedReader reader) {
@@ -31,6 +32,7 @@ class LineListWidget extends ConsumerWidget {
                 transitionDuration: Duration(milliseconds: 500),
               ),
             ),
+            upperLimit: upperLimit,
           );
         }
 
@@ -48,21 +50,38 @@ class LineListWidget extends ConsumerWidget {
 class _DraggableCard extends StatefulWidget {
   final Widget child;
   final Future<void> Function() onPanEnd;
+  final GlobalKey upperLimit;
 
-  _DraggableCard({this.child, Key key, this.onPanEnd}) : super(key: key);
+  _DraggableCard({this.child, Key key, this.onPanEnd, this.upperLimit})
+      : super(key: key);
 
   @override
   State<_DraggableCard> createState() => _DraggableCardState();
 }
 
 class _DraggableCardState extends State<_DraggableCard> {
+  final anchor = GlobalKey();
+
   var _top = 0.0;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onPanUpdate: (details) =>
-          setState(() => _top = min(0, _top + details.delta.dy)),
+      onPanUpdate: (details) {
+        final upperLimit =
+            (widget.upperLimit?.currentContext?.findRenderObject() as RenderBox)
+                    ?.localToGlobal(Offset.zero)
+                    ?.dy ??
+                0.0;
+        final anchor =
+            (this.anchor.currentContext?.findRenderObject() as RenderBox)
+                    ?.localToGlobal(Offset.zero)
+                    ?.dy ??
+                0.0;
+        assert(upperLimit < anchor);
+        setState(() =>
+            _top = max(upperLimit - anchor, min(0, _top + details.delta.dy)));
+      },
       onPanEnd: (_) async {
         if (_top < 0) {
           await widget.onPanEnd();
@@ -71,7 +90,7 @@ class _DraggableCardState extends State<_DraggableCard> {
       },
       child: Stack(
         children: [
-          const SizedBox.expand(),
+          SizedBox.expand(key: anchor),
           Positioned.fill(
             top: _top,
             child: Material(child: widget.child),
