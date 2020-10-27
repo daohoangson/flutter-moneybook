@@ -5,6 +5,14 @@ import 'package:moneybook/src/data/firestore_repository.dart';
 import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/l10n/strings.dart';
 
+final _controllerProvider = Provider<TextEditingController>((ref) {
+  final controller = TextEditingController();
+  ref.onDispose(() => controller.dispose());
+  return controller;
+});
+
+final _isExpenseProvider = ChangeNotifierProvider((_) => ValueNotifier(true));
+
 class NewLineWidget extends StatefulWidget {
   final String bookId;
 
@@ -15,14 +23,10 @@ class NewLineWidget extends StatefulWidget {
 }
 
 class _NewLineState extends State<NewLineWidget> {
-  final controller = TextEditingController();
   final focusNode = FocusNode();
-
-  var _isExpense = true;
 
   @override
   void dispose() {
-    controller.dispose();
     focusNode.dispose();
     super.dispose();
   }
@@ -50,10 +54,12 @@ class _NewLineState extends State<NewLineWidget> {
                       child: child,
                       onPressed: controller.text.isEmpty ? null : _submit,
                     ),
-                    child: Text(
-                      _isExpense
-                          ? _strings.lineAddExpense
-                          : _strings.lineAddIncome,
+                    child: Consumer(
+                      builder: (_, watch, __) => Text(
+                        watch(_isExpenseProvider).value
+                            ? _strings.lineAddExpense
+                            : _strings.lineAddIncome,
+                      ),
                     ),
                   ),
                 ),
@@ -83,23 +89,31 @@ class _NewLineState extends State<NewLineWidget> {
       );
 
   Widget get _typeExpenseButton => FlatButton(
-        child: Text(
-          _strings.lineAddExpense,
-          style: _isExpense ? TextStyle(fontWeight: FontWeight.bold) : null,
+        child: Consumer(
+          builder: (__, watch, _) => Text(
+            _strings.lineAddExpense,
+            style: watch(_isExpenseProvider).value
+                ? TextStyle(fontWeight: FontWeight.bold)
+                : null,
+          ),
         ),
         onPressed: () {
-          setState(() => _isExpense = true);
+          isExpense = true;
           focusNode.requestFocus();
         },
       );
 
   Widget get _typeIncomeButton => FlatButton(
-        child: Text(
-          _strings.lineAddIncome,
-          style: !_isExpense ? TextStyle(fontWeight: FontWeight.bold) : null,
+        child: Consumer(
+          builder: (__, watch, _) => Text(
+            _strings.lineAddIncome,
+            style: !watch(_isExpenseProvider).value
+                ? TextStyle(fontWeight: FontWeight.bold)
+                : null,
+          ),
         ),
         onPressed: () {
-          setState(() => _isExpense = false);
+          isExpense = false;
           focusNode.requestFocus();
         },
       );
@@ -107,14 +121,23 @@ class _NewLineState extends State<NewLineWidget> {
   Strings get _strings => Strings.of(context);
 
   void _submit() async {
-    final repository = context.read(repositoryProvider);
     final amount = int.tryParse(controller.text);
+    if (amount == null || amount < 0) return;
+
+    final repository = context.read(repositoryProvider);
     await repository.createBookLine(
       widget.bookId,
-      LineModel(amount: (_isExpense ? -1 : 1) * amount),
+      LineModel(amount: (isExpense ? -1 : 1) * amount),
     );
 
     controller.clear();
     focusNode.unfocus();
   }
+}
+
+extension _BuildContext on _NewLineState {
+  TextEditingController get controller => context.read(_controllerProvider);
+
+  bool get isExpense => context.read(_isExpenseProvider).value;
+  set isExpense(bool v) => context.read(_isExpenseProvider).value = v;
 }
