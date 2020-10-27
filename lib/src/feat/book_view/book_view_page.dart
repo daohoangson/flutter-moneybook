@@ -78,11 +78,19 @@ class _BookViewPageState extends State<BookViewPage> {
     if (replacementBookId == null) return;
 
     Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (_) => BookViewPage(
-                  replacementBookId,
-                  isHomePage: widget.isHomePage,
-                )));
+      context,
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => BookViewPage(
+          replacementBookId,
+          isHomePage: widget.isHomePage,
+        ),
+        transitionsBuilder: (_, anim, __, child) => SlideTransition(
+          child: child,
+          position: Tween<Offset>(begin: Offset(0, -1), end: Offset(0, 0))
+              .animate(anim),
+        ),
+        transitionDuration: Duration(milliseconds: 400),
+      ),
+    );
   }
 }
