@@ -146,6 +146,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_animated_indicator:
+    dependency: "direct main"
+    description:
+      path: "packages/animated_indicator"
+      relative: true
+    source: path
+    version: "0.0.1"
   flutter_riverpod:
     dependency: "direct main"
     description:
