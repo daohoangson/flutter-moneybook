@@ -1,7 +1,7 @@
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-import 'internal.dart';
+import 'internal/target_manager.dart';
 
 class AnimatedIndicatorTarget extends SingleChildRenderObjectWidget {
   final bool isActive;
@@ -17,7 +17,7 @@ class AnimatedIndicatorTarget extends SingleChildRenderObjectWidget {
   @override
   RenderObject createRenderObject(BuildContext context) {
     return _RenderAnimatedIndicatorTarget()
-      ..updateTarget = UpdateTarget_.of(context)
+      ..manager = TargetManager.of(context)
       ..isActive = isActive
       ..tag = tag;
   }
@@ -26,17 +26,17 @@ class AnimatedIndicatorTarget extends SingleChildRenderObjectWidget {
   void updateRenderObject(
       BuildContext context, _RenderAnimatedIndicatorTarget renderObject) {
     renderObject
-      ..updateTarget = UpdateTarget_.of(context)
+      ..manager = TargetManager.of(context)
       ..isActive = isActive
       ..tag = tag;
   }
 }
 
 class _RenderAnimatedIndicatorTarget extends RenderProxyBox {
-  UpdateTarget _updateTarget;
-  set updateTarget(UpdateTarget v) {
-    if (identical(v, _updateTarget)) return;
-    _updateTarget = v;
+  TargetManager _manager;
+  set manager(TargetManager v) {
+    if (identical(v, _manager)) return;
+    _manager = v;
     markNeedsPaint();
   }
 
@@ -57,7 +57,7 @@ class _RenderAnimatedIndicatorTarget extends RenderProxyBox {
   @override
   void paint(PaintingContext context, Offset offset) {
     if (_isActive == true) {
-      _updateTarget?.call(offset, size, _tag);
+      _manager?.onActiveTargetPainting(offset, size, _tag);
     }
 
     super.paint(context, offset);

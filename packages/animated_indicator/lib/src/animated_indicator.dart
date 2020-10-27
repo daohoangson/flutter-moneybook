@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'internal.dart';
+import 'internal/container.dart';
+import 'internal/target_manager.dart';
 
 class AnimatedIndicator extends StatefulWidget {
   final Widget child;
@@ -30,13 +31,15 @@ typedef PainterBuilder = CustomPainter Function(
 typedef OnNewAnimation = void Function(Animation<double> animation, Object tag);
 
 class _AnimatedIndicatorState extends State<AnimatedIndicator>
-    with TickerProviderStateMixin {
-  final key = GlobalKey();
-
+    with TargetManager<AnimatedIndicator>, TickerProviderStateMixin {
   Animation<Rect> _animation;
   AnimationController _controller;
   Animation<double> _curve;
+
+  Offset _containerOffset;
+  Rect _targetPrev;
   Rect _targetRect;
+  Object _targetTag;
 
   @override
   void initState() {
@@ -54,33 +57,44 @@ class _AnimatedIndicatorState extends State<AnimatedIndicator>
   }
 
   @override
-  Widget build(BuildContext context) => updateTarget.widget(
+  Widget build(BuildContext context) => buildManagerWidget(
         child: CustomPaint(
-          child: widget.child,
-          key: key,
+          child: InternalContainer(
+            child: widget.child,
+          ),
           painter: _buildPainter(context),
         ),
       );
 
-  void updateTarget(Offset offset, Size size, Object tag) {
-    if (offset == null || size == null) return;
+  @override
+  void onContainerPainting(Offset offset, Size size) {
+    _containerOffset = offset;
+    _targetPrev = _targetRect;
+    _targetRect = null;
+    _targetTag = null;
+  }
 
-    final oldRect = _targetRect;
-    final newRect =
-        Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
-    if (newRect == oldRect) return;
-    _targetRect = newRect;
+  @override
+  void onActiveTargetPainting(Offset offset, Size size, Object tag) {
+    _targetRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+    _targetTag = tag;
+  }
+
+  @override
+  void onContainerPainted() {
+    if (_targetRect == _targetPrev) return;
 
     if (_controller.isAnimating) {
       _animation =
-          RectTween(begin: _animation.value, end: newRect).animate(_curve);
+          RectTween(begin: _animation.value, end: _targetRect).animate(_curve);
     } else {
       _animation =
-          RectTween(begin: oldRect ?? newRect, end: newRect).animate(_curve);
+          RectTween(begin: _targetPrev ?? _targetRect, end: _targetRect)
+              .animate(_curve);
     }
     _animation.addListener(() => setState(() {}));
 
-    widget.onNewAnimation?.call(_curve, tag);
+    widget.onNewAnimation?.call(_curve, _targetTag);
 
     return WidgetsBinding.instance.addPostFrameCallback((_) => _controller
       ..reset()
@@ -88,9 +102,7 @@ class _AnimatedIndicatorState extends State<AnimatedIndicator>
   }
 
   CustomPainter _buildPainter(BuildContext context) {
-    final offset = (key.currentContext?.findRenderObject() as RenderBox)
-            ?.localToGlobal(Offset.zero) ??
-        Offset.zero;
+    final offset = _containerOffset ?? Offset.zero;
     final r = _animation?.value ?? _targetRect ?? Rect.zero;
     final rect = Rect.fromPoints(r.topLeft - offset, r.bottomRight - offset);
     return widget.painterBuilder?.call(context, rect) ??
