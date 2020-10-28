@@ -1,2 +1,3 @@
 /android/app/google-services.json filter=git-crypt diff=git-crypt
+/android/app/keystore.jks filter=git-crypt diff=git-crypt
 /ios/GoogleService-Info.plist filter=git-crypt diff=git-crypt
