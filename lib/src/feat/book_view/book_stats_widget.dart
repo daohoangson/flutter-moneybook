@@ -9,8 +9,8 @@ class BookStatsWidget extends ConsumerWidget {
   const BookStatsWidget(this.bookId, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext _, ScopedReader reader) {
-    final uid = reader(authProvider)?.data?.value?.uid ?? '';
+  Widget build(BuildContext _, ScopedReader watch) {
+    final uid = watch(authProvider)?.data?.value?.uid ?? '';
 
     return AspectRatio(
       aspectRatio: 3,
@@ -25,7 +25,7 @@ class BookStatsWidget extends ConsumerWidget {
               ],
             );
           },
-          future: reader(bookProvider(bookId).last),
+          future: watch(bookProvider(bookId).last),
         ),
         scrollDirection: Axis.horizontal,
       ),

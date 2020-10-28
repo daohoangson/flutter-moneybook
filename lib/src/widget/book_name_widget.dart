@@ -8,8 +8,8 @@ class BookNameWidget extends ConsumerWidget {
   BookNameWidget(this.bookId, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext _, ScopedReader reader) => FutureBuilder<BookModel>(
+  Widget build(BuildContext _, ScopedReader watch) => FutureBuilder<BookModel>(
         builder: (_, snapshot) => Text(snapshot.data?.name ?? ''),
-        future: reader(bookProvider(bookId).last),
+        future: watch(bookProvider(bookId).last),
       );
 }

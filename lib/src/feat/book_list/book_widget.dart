@@ -9,7 +9,7 @@ class BookWidget extends ConsumerWidget {
   const BookWidget(this.bookId, {Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
+  Widget build(BuildContext context, ScopedReader watch) {
     return FutureBuilder<BookModel>(
       builder: (_, snapshot) {
         final book = snapshot.data;
@@ -20,7 +20,7 @@ class BookWidget extends ConsumerWidget {
               .push(MaterialPageRoute(builder: (_) => BookViewPage(bookId))),
         );
       },
-      future: reader(bookProvider(bookId).last),
+      future: watch(bookProvider(bookId).last),
     );
   }
 }

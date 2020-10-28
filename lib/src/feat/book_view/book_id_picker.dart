@@ -8,7 +8,7 @@ class BookIdPicker extends ConsumerWidget {
   BookIdPicker({Key key, this.selectedBookId}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
+  Widget build(BuildContext context, ScopedReader watch) {
     return FutureBuilder<List<String>>(
       builder: (_, snapshot) {
         if (snapshot.hasData) {
@@ -25,7 +25,7 @@ class BookIdPicker extends ConsumerWidget {
 
         return const Center(child: CircularProgressIndicator());
       },
-      future: reader(userBooksProvider.last),
+      future: watch(userBooksProvider.last),
     );
   }
 

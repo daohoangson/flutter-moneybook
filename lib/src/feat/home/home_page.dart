@@ -6,7 +6,7 @@ import 'package:moneybook/src/l10n/strings.dart';
 
 class HomePage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
+  Widget build(BuildContext context, ScopedReader watch) {
     final placeholder = Scaffold(
       appBar: AppBar(
         title: Text(Strings.of(context).home),
@@ -26,7 +26,7 @@ class HomePage extends ConsumerWidget {
           isHomePage: true,
         );
       },
-      future: reader(currentBookIdProvider.future),
+      future: watch(currentBookIdProvider.future),
     );
   }
 }

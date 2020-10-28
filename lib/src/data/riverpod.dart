@@ -39,11 +39,11 @@ class DataSourceWarmUp extends ConsumerWidget {
   DataSourceWarmUp({this.child, Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) => FutureBuilder(
+  Widget build(BuildContext context, ScopedReader watch) => FutureBuilder(
         builder: (_, __) => child,
         future: Future.wait([
-          reader(persistenceProvider.future),
-          reader(repositoryProvider.future),
+          watch(persistenceProvider.future),
+          watch(repositoryProvider.future),
         ]),
       );
 }

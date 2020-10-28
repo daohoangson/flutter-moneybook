@@ -7,7 +7,7 @@ import 'new_book_fab.dart';
 
 class BookListPage extends ConsumerWidget {
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
+  Widget build(BuildContext context, ScopedReader watch) {
     return Scaffold(
       appBar: AppBar(
         title: Text(Strings.of(context).bookList),
@@ -28,7 +28,7 @@ class BookListPage extends ConsumerWidget {
 
           return const Center(child: CircularProgressIndicator());
         },
-        future: reader(userBooksProvider.last),
+        future: watch(userBooksProvider.last),
       ),
       floatingActionButton: NewBookFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,

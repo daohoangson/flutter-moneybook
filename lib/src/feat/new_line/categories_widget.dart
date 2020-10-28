@@ -9,9 +9,9 @@ class CategoriesWidget extends ConsumerWidget {
   const CategoriesWidget({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final categories = reader(categoriesProvider);
-    final isExpense = reader(isExpenseProvider).value;
+  Widget build(BuildContext context, ScopedReader watch) {
+    final categories = watch(categoriesProvider);
+    final isExpense = watch(isExpenseProvider).value;
 
     return SingleChildScrollView(
       child: AnimatedIndicator(
@@ -39,8 +39,8 @@ class _CategoryWidget extends ConsumerWidget {
   _CategoryWidget({this.category, Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final value = reader(categoryProvider);
+  Widget build(BuildContext context, ScopedReader watch) {
+    final value = watch(categoryProvider);
     final isActive = this.category == value.value;
 
     return GestureDetector(

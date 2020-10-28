@@ -10,9 +10,9 @@ class SubmitButton extends ConsumerWidget {
   const SubmitButton({Key key, this.onSubmitted}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final amount = reader(amountProvider);
-    final isExpense = reader(isExpenseProvider).value;
+  Widget build(BuildContext context, ScopedReader watch) {
+    final amount = watch(amountProvider);
+    final isExpense = watch(isExpenseProvider).value;
     final strings = Strings.of(context);
 
     return Align(

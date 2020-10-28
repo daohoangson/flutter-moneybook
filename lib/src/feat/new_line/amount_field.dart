@@ -11,9 +11,9 @@ class AmountField extends ConsumerWidget {
   const AmountField({Key key, this.onSubmitted}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final controller = reader(amountProvider);
-    final focusNode = reader(focusNodeProvider);
+  Widget build(BuildContext context, ScopedReader watch) {
+    final controller = watch(amountProvider);
+    final focusNode = watch(focusNodeProvider);
     final strings = Strings.of(context);
 
     return TextField(

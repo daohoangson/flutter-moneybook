@@ -112,8 +112,8 @@ class _TypeExpenseText extends ConsumerWidget {
   const _TypeExpenseText({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final isExpense = reader(isExpenseProvider).value;
+  Widget build(BuildContext context, ScopedReader watch) {
+    final isExpense = watch(isExpenseProvider).value;
     final text = Strings.of(context).lineAddExpense;
     return AnimatedIndicatorTarget(
       child: Padding(
@@ -133,8 +133,8 @@ class _TypeIncomeText extends ConsumerWidget {
   const _TypeIncomeText({Key key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context, ScopedReader reader) {
-    final isIncome = !reader(isExpenseProvider).value;
+  Widget build(BuildContext context, ScopedReader watch) {
+    final isIncome = !watch(isExpenseProvider).value;
     final text = Strings.of(context).lineAddIncome;
     return AnimatedIndicatorTarget(
       child: Padding(
