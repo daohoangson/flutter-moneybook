@@ -9,6 +9,7 @@ part of 'line_model.dart';
 _$_LineModel _$_$_LineModelFromJson(Map<String, dynamic> json) {
   return _$_LineModel(
     amount: json['amount'] as num,
+    category: _categoryFromJson(json['category'] as String),
     id: json['id'] as String,
     uid: json['uid'] as String,
     when: json['when'] == null ? null : DateTime.parse(json['when'] as String),
@@ -18,6 +19,7 @@ _$_LineModel _$_$_LineModelFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$_$_LineModelToJson(_$_LineModel instance) {
   final val = <String, dynamic>{
     'amount': instance.amount,
+    'category': _categoryToJson(instance.category),
   };
 
   void writeNotNull(String key, dynamic value) {

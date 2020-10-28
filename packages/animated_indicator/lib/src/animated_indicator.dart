@@ -76,7 +76,8 @@ class _AnimatedIndicatorState extends State<AnimatedIndicator>
 
   @override
   void onActiveTargetPainting(Offset offset, Size size, Object tag) {
-    _targetRect = Rect.fromLTWH(offset.dx, offset.dy, size.width, size.height);
+    final o = offset - _containerOffset;
+    _targetRect = Rect.fromLTWH(o.dx, o.dy, size.width, size.height);
     _targetTag = tag;
   }
 
@@ -84,14 +85,13 @@ class _AnimatedIndicatorState extends State<AnimatedIndicator>
   void onContainerPainted() {
     if (_targetRect == _targetPrev) return;
 
-    if (_controller.isAnimating) {
-      _animation =
-          RectTween(begin: _animation.value, end: _targetRect).animate(_curve);
-    } else {
-      _animation =
-          RectTween(begin: _targetPrev ?? _targetRect, end: _targetRect)
-              .animate(_curve);
-    }
+    final begin = _controller.isAnimating ? _animation.value : _targetPrev;
+    final end = _targetRect;
+    assert(begin != null || end != null);
+    _animation = RectTween(
+      begin: begin ?? Rect.fromCenter(center: end.center, height: 0, width: 0),
+      end: end ?? Rect.fromCenter(center: begin.center, height: 0, width: 0),
+    ).animate(_curve);
     _animation.addListener(() => setState(() {}));
 
     widget.onNewAnimation?.call(_curve, _targetTag);
@@ -102,9 +102,7 @@ class _AnimatedIndicatorState extends State<AnimatedIndicator>
   }
 
   CustomPainter _buildPainter(BuildContext context) {
-    final offset = _containerOffset ?? Offset.zero;
-    final r = _animation?.value ?? _targetRect ?? Rect.zero;
-    final rect = Rect.fromPoints(r.topLeft - offset, r.bottomRight - offset);
+    final rect = _animation?.value;
     return widget.painterBuilder?.call(context, rect) ??
         _DefaultPainter(Theme.of(context).accentColor, rect);
   }

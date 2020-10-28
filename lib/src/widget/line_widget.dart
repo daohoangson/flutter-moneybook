@@ -11,7 +11,7 @@ class LineWidget extends StatelessWidget {
         child: Material(
           child: ListTile(
             title: Text(line.when.toString()),
-            subtitle: Text(line.amount.toString()),
+            subtitle: Text('${line.category?.id} ${line.amount}'),
           ),
         ),
         tag: 'LineWidget-${line.id}',

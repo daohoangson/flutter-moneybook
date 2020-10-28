@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:moneybook/src/data/persistence.dart';
 import 'package:moneybook/src/data/riverpod.dart';
 import 'package:moneybook/src/feat/book_list/book_list_page.dart';
-import 'package:moneybook/src/feat/book_view/line_list_widget.dart';
+import 'package:moneybook/src/feat/new_line/new_line_widget.dart';
 import 'package:moneybook/src/widget/book_name_widget.dart';
 import 'package:moneybook/src/widget/unfocus_widget.dart';
 
 import 'book_id_picker.dart';
 import 'book_stats_widget.dart';
-import 'new_line_widget.dart';
+import 'line_list_widget.dart';
 
 class BookViewPage extends StatefulWidget {
   final String bookId;
