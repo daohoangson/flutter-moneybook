@@ -45,6 +45,7 @@ class _NewBookBottomSheetState extends State<_NewBookBottomSheet> {
                 labelText: strings.bookNameLabel,
                 hintText: strings.bookNameHint,
               ),
+              textCapitalization: TextCapitalization.words,
             ),
             RaisedButton(
               child: Text(strings.save),
