@@ -66,6 +66,7 @@ class _CategoryWidget extends ConsumerWidget {
           value.value = null;
         } else {
           value.value = category;
+          context.read(focusNodeProvider).requestFocus();
         }
       },
       behavior: HitTestBehavior.translucent,
