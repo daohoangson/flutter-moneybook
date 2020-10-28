@@ -46,7 +46,7 @@ class _LineListState extends State<LineListPage> {
   }
 
   void _onLoading() async {
-    final repository = context.read(repositoryProvider);
+    final repository = await context.read(repositoryProvider.future);
     final nextLines =
         await repository.getLinesOnce(widget.bookId, since: lines.last);
     if (nextLines.isNotEmpty) {

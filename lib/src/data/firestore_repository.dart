@@ -5,8 +5,18 @@ import 'package:data/data.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:moneybook/src/feat/auth/firebase_auth.dart';
 
-final repositoryProvider = Provider<Repository>(
-    (ref) => _FirestoreRepository(ref.watch(authProvider).data?.value));
+final repositoryProvider = FutureProvider<Repository>((ref) async {
+  print('repositoryProvider: waiting for authProvider...');
+  final user = await ref.watch(authProvider.last);
+  return ref.read(_dedupProvider(user));
+});
+
+// TODO: check why repository is being created twice for the same user
+// our bug or riverpod's?
+final _dedupProvider = Provider.family((ref, UserModel user) {
+  print('repositoryProvider: OK (uid=${user?.uid})');
+  return _FirestoreRepository(user);
+});
 
 const _kFieldId = 'id';
 
@@ -21,16 +31,16 @@ const _kCollectionUserBooks = 'user-books';
 
 const _kRoleOwner = 'owner';
 
-final _firestore = FirebaseFirestore.instance;
-
 class _FirestoreRepository extends Repository {
   final UserModel user;
 
   _FirestoreRepository(this.user);
 
+  FirebaseFirestore get firestore => FirebaseFirestore.instance;
+
   @override
   Future<BookModel> createBook(BookModel book) async {
-    final bookDoc = _firestore.collection(_kCollectionBooks).doc();
+    final bookDoc = firestore.collection(_kCollectionBooks).doc();
     final role = _kRoleOwner;
     book = book.copyWith(
       id: bookDoc.id,
@@ -38,10 +48,10 @@ class _FirestoreRepository extends Repository {
     );
 
     final userBookDoc =
-        _firestore.collection(_kCollectionUserBooks).doc(user.uid);
+        firestore.collection(_kCollectionUserBooks).doc(user.uid);
     final userBookData = {bookDoc.id: role};
 
-    await _firestore.runTransaction((transaction) async {
+    await firestore.runTransaction((transaction) async {
       transaction.set(bookDoc, book.toJson());
       transaction.set(userBookDoc, userBookData, SetOptions(merge: true));
     });
@@ -51,7 +61,7 @@ class _FirestoreRepository extends Repository {
 
   @override
   Future<LineModel> createBookLine(String bookId, LineModel line) async {
-    final bookDoc = _firestore.collection(_kCollectionBooks).doc(bookId);
+    final bookDoc = firestore.collection(_kCollectionBooks).doc(bookId);
     final lineDoc = bookDoc.collection(_kCollectionLines).doc();
     line = line.copyWith(
       id: lineDoc.id,
@@ -63,7 +73,7 @@ class _FirestoreRepository extends Repository {
       _kLineFieldWhen: FieldValue.serverTimestamp()
     };
 
-    await _firestore.runTransaction((transaction) async {
+    await firestore.runTransaction((transaction) async {
       final book = await transaction.get(bookDoc);
       final balanceBefore = book.data()['balance'] as num ?? 0;
       final balanceAfter = balanceBefore + line.amount;
@@ -77,7 +87,7 @@ class _FirestoreRepository extends Repository {
 
   Stream<BookModel> getBook(String bookId) {
     print('getBook($bookId)...');
-    return _firestore
+    return firestore
         .collection(_kCollectionBooks)
         .doc(bookId)
         .snapshots()
@@ -87,7 +97,7 @@ class _FirestoreRepository extends Repository {
   @override
   Stream<List<LineModel>> getLines(String bookId) {
     print('getLines($bookId)...');
-    return _firestore
+    return firestore
         .collection(_kCollectionBooks)
         .doc(bookId)
         .collection(_kCollectionLines)
@@ -101,7 +111,7 @@ class _FirestoreRepository extends Repository {
   @override
   Future<List<LineModel>> getLinesOnce(String bookId, {LineModel since}) async {
     print('getLinesOnce($bookId, since: $since)...');
-    var query = _firestore
+    var query = firestore
         .collection(_kCollectionBooks)
         .doc(bookId)
         .collection(_kCollectionLines)
@@ -125,7 +135,7 @@ class _FirestoreRepository extends Repository {
   @override
   Stream<List<String>> getUserBooks() {
     print('getUserBooks()...');
-    return _firestore
+    return firestore
         .collection(_kCollectionUserBooks)
         .doc(user.uid)
         .snapshots()

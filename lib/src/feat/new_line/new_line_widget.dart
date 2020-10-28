@@ -42,7 +42,7 @@ class NewLineWidget extends StatelessWidget {
     final category = context.read(categoryProvider).value;
     final isExpense = context.read(isExpenseProvider).value;
 
-    final repository = context.read(repositoryProvider);
+    final repository = await context.read(repositoryProvider.future);
     await repository.createBookLine(
       bookId,
       LineModel(
