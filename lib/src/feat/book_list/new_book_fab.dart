@@ -49,8 +49,9 @@ class _NewBookBottomSheetState extends State<_NewBookBottomSheet> {
             RaisedButton(
               child: Text(strings.save),
               onPressed: () async {
-                final book = await context
-                    .read(repositoryProvider)
+                final repository =
+                    await context.read(repositoryProvider.future);
+                final book = await repository
                     .createBook(BookModel(name: controller.text));
                 Navigator.of(context).pop(book);
               },

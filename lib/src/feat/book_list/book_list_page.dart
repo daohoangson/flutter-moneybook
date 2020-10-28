@@ -28,7 +28,7 @@ class BookListPage extends ConsumerWidget {
 
           return const Center(child: CircularProgressIndicator());
         },
-        future: reader(userBookProvider.last),
+        future: reader(userBooksProvider.last),
       ),
       floatingActionButton: NewBookFab(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
