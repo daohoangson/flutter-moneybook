@@ -47,11 +47,11 @@ class _CategoryWidget extends ConsumerWidget {
       child: Padding(
         child: Stack(
           children: [
-            Opacity(child: _buildText(true), opacity: 0),
+            Opacity(child: _buildText(context, true), opacity: 0),
             Positioned.fill(
               child: Center(
                 child: AnimatedIndicatorTarget(
-                  child: _buildText(isActive),
+                  child: _buildText(context, isActive),
                   isActive: isActive,
                   tag: category,
                 ),
@@ -59,7 +59,7 @@ class _CategoryWidget extends ConsumerWidget {
             ),
           ],
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
       ),
       onTap: () {
         if (isActive) {
@@ -73,14 +73,15 @@ class _CategoryWidget extends ConsumerWidget {
     );
   }
 
-  Widget _buildText(bool isActive) => Padding(
+  Widget _buildText(BuildContext context, bool isActive) => Padding(
         child: Text(
           category.id,
           style: TextStyle(
-            fontWeight: isActive ? FontWeight.bold : null,
+            fontSize: DefaultTextStyle.of(context).style.fontSize * 1.5,
+            fontWeight: isActive ? FontWeight.w500 : FontWeight.w300,
           ),
         ),
-        padding: const EdgeInsets.only(bottom: 2),
+        padding: const EdgeInsets.symmetric(vertical: 3),
       );
 }
 
@@ -98,7 +99,7 @@ class _IndicatorPainter extends CustomPainter {
       rect.bottomRight,
       Paint()
         ..color = color
-        ..strokeWidth = 2,
+        ..strokeWidth = 3,
     );
   }
 

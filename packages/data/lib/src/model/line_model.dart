@@ -14,6 +14,7 @@ abstract class LineModel with _$LineModel {
     @JsonKey(fromJson: _categoryFromJson, toJson: _categoryToJson)
         LineCategory category,
     @JsonKey(includeIfNull: false, toJson: _idToJson) String id,
+    String note,
     String uid,
     DateTime when,
   }) = _LineModel;

@@ -17,6 +17,9 @@ class Strings {
   final lineAddIncome = 'Add income';
   final lineAmountLabel = 'Amount';
   final lineAmountHint = '0';
+  final lineNoteLabel = 'Note';
+  final lineNoteHint = '';
+  final lineTagSuggestions = 'Tag suggestions:';
 
   static Strings of(BuildContext _) => const Strings._();
 }

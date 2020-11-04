@@ -23,12 +23,14 @@ class _$LineModelTearOff {
           LineCategory category,
       @JsonKey(includeIfNull: false, toJson: _idToJson)
           String id,
+      String note,
       String uid,
       DateTime when}) {
     return _LineModel(
       amount: amount,
       category: category,
       id: id,
+      note: note,
       uid: uid,
       when: when,
     );
@@ -51,6 +53,7 @@ mixin _$LineModel {
   LineCategory get category;
   @JsonKey(includeIfNull: false, toJson: _idToJson)
   String get id;
+  String get note;
   String get uid;
   DateTime get when;
 
@@ -68,6 +71,7 @@ abstract class $LineModelCopyWith<$Res> {
           LineCategory category,
       @JsonKey(includeIfNull: false, toJson: _idToJson)
           String id,
+      String note,
       String uid,
       DateTime when});
 }
@@ -85,6 +89,7 @@ class _$LineModelCopyWithImpl<$Res> implements $LineModelCopyWith<$Res> {
     Object amount = freezed,
     Object category = freezed,
     Object id = freezed,
+    Object note = freezed,
     Object uid = freezed,
     Object when = freezed,
   }) {
@@ -93,6 +98,7 @@ class _$LineModelCopyWithImpl<$Res> implements $LineModelCopyWith<$Res> {
       category:
           category == freezed ? _value.category : category as LineCategory,
       id: id == freezed ? _value.id : id as String,
+      note: note == freezed ? _value.note : note as String,
       uid: uid == freezed ? _value.uid : uid as String,
       when: when == freezed ? _value.when : when as DateTime,
     ));
@@ -111,6 +117,7 @@ abstract class _$LineModelCopyWith<$Res> implements $LineModelCopyWith<$Res> {
           LineCategory category,
       @JsonKey(includeIfNull: false, toJson: _idToJson)
           String id,
+      String note,
       String uid,
       DateTime when});
 }
@@ -129,6 +136,7 @@ class __$LineModelCopyWithImpl<$Res> extends _$LineModelCopyWithImpl<$Res>
     Object amount = freezed,
     Object category = freezed,
     Object id = freezed,
+    Object note = freezed,
     Object uid = freezed,
     Object when = freezed,
   }) {
@@ -137,6 +145,7 @@ class __$LineModelCopyWithImpl<$Res> extends _$LineModelCopyWithImpl<$Res>
       category:
           category == freezed ? _value.category : category as LineCategory,
       id: id == freezed ? _value.id : id as String,
+      note: note == freezed ? _value.note : note as String,
       uid: uid == freezed ? _value.uid : uid as String,
       when: when == freezed ? _value.when : when as DateTime,
     ));
@@ -153,6 +162,7 @@ class _$_LineModel implements _LineModel {
           this.category,
       @JsonKey(includeIfNull: false, toJson: _idToJson)
           this.id,
+      this.note,
       this.uid,
       this.when});
 
@@ -168,13 +178,15 @@ class _$_LineModel implements _LineModel {
   @JsonKey(includeIfNull: false, toJson: _idToJson)
   final String id;
   @override
+  final String note;
+  @override
   final String uid;
   @override
   final DateTime when;
 
   @override
   String toString() {
-    return 'LineModel(amount: $amount, category: $category, id: $id, uid: $uid, when: $when)';
+    return 'LineModel(amount: $amount, category: $category, id: $id, note: $note, uid: $uid, when: $when)';
   }
 
   @override
@@ -188,6 +200,8 @@ class _$_LineModel implements _LineModel {
                     .equals(other.category, category)) &&
             (identical(other.id, id) ||
                 const DeepCollectionEquality().equals(other.id, id)) &&
+            (identical(other.note, note) ||
+                const DeepCollectionEquality().equals(other.note, note)) &&
             (identical(other.uid, uid) ||
                 const DeepCollectionEquality().equals(other.uid, uid)) &&
             (identical(other.when, when) ||
@@ -200,6 +214,7 @@ class _$_LineModel implements _LineModel {
       const DeepCollectionEquality().hash(amount) ^
       const DeepCollectionEquality().hash(category) ^
       const DeepCollectionEquality().hash(id) ^
+      const DeepCollectionEquality().hash(note) ^
       const DeepCollectionEquality().hash(uid) ^
       const DeepCollectionEquality().hash(when);
 
@@ -220,6 +235,7 @@ abstract class _LineModel implements LineModel {
           LineCategory category,
       @JsonKey(includeIfNull: false, toJson: _idToJson)
           String id,
+      String note,
       String uid,
       DateTime when}) = _$_LineModel;
 
@@ -234,6 +250,8 @@ abstract class _LineModel implements LineModel {
   @override
   @JsonKey(includeIfNull: false, toJson: _idToJson)
   String get id;
+  @override
+  String get note;
   @override
   String get uid;
   @override

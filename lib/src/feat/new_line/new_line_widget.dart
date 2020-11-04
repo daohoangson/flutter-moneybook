@@ -7,6 +7,7 @@ import 'amount_field.dart';
 import 'categories_widget.dart';
 import 'new_line_data.dart';
 import 'submit_button.dart';
+import 'note.dart';
 import 'types_widget.dart';
 
 class NewLineWidget extends StatelessWidget {
@@ -22,25 +23,37 @@ class NewLineWidget extends StatelessWidget {
             Padding(
               child: Column(
                 children: [
-                  AmountField(onSubmitted: () => _submit(context)),
                   const CategoriesWidget(),
-                  SubmitButton(onSubmitted: () => _submit(context)),
+                  AmountField(onSubmitted: () => _submit(context)),
+                  NoteField(onSubmitted: () => _submit(context)),
+                  Row(
+                    children: [
+                      const Expanded(child: TagSuggestionsWidget()),
+                      SubmitButton(onSubmitted: () => _submit(context)),
+                    ],
+                  ),
                 ],
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 mainAxisSize: MainAxisSize.min,
               ),
               padding: const EdgeInsets.all(8),
             ),
           ],
+          crossAxisAlignment: CrossAxisAlignment.stretch,
         ),
       );
 
   void _submit(BuildContext context) async {
     final amountController = context.read(amountProvider);
     final amountInt = int.tryParse(amountController.text);
-    if (amountInt == null || amountInt < 0) return;
+    if (amountInt == null || amountInt < 0) {
+      context.read(focusNodeProvider).requestFocus();
+      return;
+    }
 
     final category = context.read(categoryProvider).value;
     final isExpense = context.read(isExpenseProvider).value;
+    final note = context.read(noteProvider);
 
     final repository = await context.read(repositoryProvider.future);
     await repository.createBookLine(
@@ -48,10 +61,11 @@ class NewLineWidget extends StatelessWidget {
       LineModel(
         amount: (isExpense ? -1 : 1) * amountInt,
         category: category,
+        note: note.text,
       ),
     );
 
     amountController.clear();
-    context.read(focusNodeProvider).unfocus();
+    note.clear();
   }
 }
