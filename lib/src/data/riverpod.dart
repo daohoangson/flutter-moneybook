@@ -11,6 +11,7 @@ export 'package:flutter_riverpod/flutter_riverpod.dart'
         ConsumerWidget,
         FutureProvider,
         Provider,
+        Reader,
         ScopedReader;
 
 final bookProvider =
